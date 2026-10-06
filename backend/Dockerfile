@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 RUN mkdir -p /app/uploads
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["src/ScaiMembers.Api/ScaiMembers.Api.csproj", "ScaiMembers.Api/"]
 RUN dotnet restore "ScaiMembers.Api/ScaiMembers.Api.csproj"
