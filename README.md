@@ -17,9 +17,20 @@ statutes-driven data model, and the phase roadmap.
 
 ---
 
-## Current phase: 1 — applications API
+## Current phase: 2 — public frontend
 
-- ✅ Phase 0: skeleton — backend, frontend, Docker Compose, CI
+- ✅ `/` landing (membership classes per §6, joining steps, fees from config —
+  shown as "set by the General Assembly" until entered)
+- ✅ `/apply` application form (person / organisation), `/apply/confirm` double opt-in
+- ✅ `/privacy` (v1.0, matches `PlatformConfig.privacyPolicyVersion`) and `/impressum`
+- ✅ Design mirrors the scai-world repo (tokens, nav, page-hero, content sections, footer)
+- ✅ Fonts self-hosted via `@fontsource` — no Google Fonts requests (GDPR)
+- ⏭ Phase 3: admin — application review + member list
+- ⚠ Before going live: switch contacts to office@scai.world once it exists;
+  confirm with Chris the log retention (14 days) and EU email provider stated in `/privacy`
+
+### Phase 1 — applications API
+
 - ✅ `POST /api/applications` — application (§7) with 18+ check, organisation
   representative, three required consents recorded with document version + timestamp
 - ✅ `POST /api/applications/verify` — double opt-in; unconfirmed applications
@@ -27,7 +38,6 @@ statutes-driven data model, and the phase roadmap.
 - ✅ `GET /api/config/public` — fees and document versions (from `PlatformConfig`, §12(f))
 - ✅ Email via SMTP when `Smtp__Host` is set; in Development, mail is written to the log
 - ✅ Per-IP rate limits on the public endpoints
-- ⏭ Phase 2: public frontend — landing + application form
 
 ---
 
@@ -89,7 +99,7 @@ docker compose pull && docker compose up -d
 |---|---|
 | 0 | Repo skeleton, compose runs, CI green ✅ |
 | 1 | Member model + application endpoints + email verification ✅ |
-| 2 | Public frontend: landing + application form (scai.world design) |
+| 2 | Public frontend: landing + application form (scai.world design) ✅ |
 | 3 | Admin: application review + member list → the board can admit members |
 | 4 | Auth + member area (`/me`, documents) |
 | 5 | File module: uploads, slug links, public/password/members |

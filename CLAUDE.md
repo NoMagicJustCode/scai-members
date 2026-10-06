@@ -48,9 +48,12 @@ She maintains this project herself and is the final decision-maker here.
 3. **Fees are configurable, never hardcoded** — the General Assembly sets
    them (§12(f)). They live in `PlatformConfig`.
 4. **English-only UI.** No i18n framework, no language switcher.
-5. **Design follows scai.world.** Tokens are in `frontend/src/index.css`
-   (warm paper, steel blue, warm gold, Cormorant Garamond + Source Sans 3).
-   Do not introduce new colors, fonts, or a CSS framework.
+5. **Design follows scai.world.** The source of truth is the
+   `NoMagicJustCode/scai-world` repo (`src/styles.css`, `Nav.tsx`,
+   `Footer.tsx`); `frontend/src/index.css` mirrors its tokens and patterns
+   (paper `#f5f5f2`, navy text, accent `#2c4a7c`, gold `#b8963e`,
+   Cormorant Garamond + Inter 300). Fonts are self-hosted via `@fontsource`,
+   never Google Fonts. Do not introduce new colors, fonts, or a CSS framework.
 6. **Board decisions need no reason** (§7(2)): application rejection has no
    mandatory reason field. Exclusion for unpaid fees requires the logged
    two-reminders trail (§8(3)) — the `reminders` list is legal evidence.
