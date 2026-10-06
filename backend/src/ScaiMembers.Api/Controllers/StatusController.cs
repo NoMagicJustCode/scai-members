@@ -8,7 +8,7 @@ namespace ScaiMembers.Api.Controllers;
 [Route("api/status")]
 public class StatusController(MongoDbContext db) : ControllerBase
 {
-    /// <summary>Phase 0 health check: proves the API is up and MongoDB is reachable.</summary>
+    /// <summary>Health check: proves the API is up and MongoDB is reachable.</summary>
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -29,7 +29,7 @@ public class StatusController(MongoDbContext db) : ControllerBase
             service = "scai-members",
             organisation = "Second Circuit – Verein für digitale Gedankenfreiheit",
             zvr = "1684464197",
-            phase = 0,
+            phase = 1,
             mongo = mongoOk ? "ok" : "unreachable",
             timeUtc = DateTime.UtcNow
         });

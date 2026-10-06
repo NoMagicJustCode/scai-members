@@ -33,8 +33,16 @@ public class MembershipApplication
     [BsonElement("emailVerified")]
     public bool EmailVerified { get; set; }
 
-    [BsonElement("emailVerificationToken")]
-    public string? EmailVerificationToken { get; set; }
+    /// <summary>SHA-256 of the double-opt-in token. The plain token exists only in the email.</summary>
+    [BsonElement("emailVerificationTokenHash")]
+    public string? EmailVerificationTokenHash { get; set; }
+
+    /// <summary>
+    /// TTL-indexed: an unverified application is deleted automatically once this
+    /// passes (data minimisation). Cleared on verification, which exempts it.
+    /// </summary>
+    [BsonElement("emailVerificationExpiresAt")]
+    public DateTime? EmailVerificationExpiresAt { get; set; }
 
     [BsonElement("postalAddress")]
     public string? PostalAddress { get; set; }

@@ -1,5 +1,16 @@
 namespace ScaiMembers.Api.Configuration;
 
+public class AppSettings
+{
+    public const string SectionName = "App";
+
+    /// <summary>Public frontend URL; used to build links in emails.</summary>
+    public string PublicBaseUrl { get; set; } = "http://localhost:5173";
+
+    /// <summary>How long a double-opt-in link stays valid before the application is discarded.</summary>
+    public int EmailVerificationHours { get; set; } = 48;
+}
+
 public class MongoDbSettings
 {
     public const string SectionName = "MongoDB";
@@ -37,10 +48,15 @@ public class UploadSettings
     public string[] AllowedExtensions { get; set; } = [".pdf", ".html"];
 }
 
-/// <summary>Transactional email (Phase 1 — verification, application results, GV invitations).</summary>
+/// <summary>
+/// Transactional email (verification, application results, GV invitations).
+/// With no Host set, mail is written to the log instead of sent (local development).
+/// </summary>
 public class SmtpSettings
 {
     public const string SectionName = "Smtp";
+
+    public bool IsConfigured => !string.IsNullOrWhiteSpace(Host);
 
     public string Host { get; set; } = string.Empty;
     public int Port { get; set; } = 587;

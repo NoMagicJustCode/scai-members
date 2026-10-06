@@ -45,7 +45,14 @@ public class MongoDbContext
             new CreateIndexModel<MembershipApplication>(
                 Builders<MembershipApplication>.IndexKeys.Ascending(a => a.Email)),
             new CreateIndexModel<MembershipApplication>(
-                Builders<MembershipApplication>.IndexKeys.Descending(a => a.SubmittedAt))
+                Builders<MembershipApplication>.IndexKeys.Descending(a => a.SubmittedAt)),
+            new CreateIndexModel<MembershipApplication>(
+                Builders<MembershipApplication>.IndexKeys.Ascending(a => a.EmailVerificationTokenHash),
+                new CreateIndexOptions { Sparse = true }),
+            // Unverified applications expire (GDPR minimisation); verified ones have no expiry date.
+            new CreateIndexModel<MembershipApplication>(
+                Builders<MembershipApplication>.IndexKeys.Ascending(a => a.EmailVerificationExpiresAt),
+                new CreateIndexOptions { ExpireAfter = TimeSpan.Zero })
         ]);
 
         SharedFiles.Indexes.CreateOne(new CreateIndexModel<SharedFile>(

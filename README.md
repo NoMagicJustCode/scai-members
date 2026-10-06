@@ -17,12 +17,17 @@ statutes-driven data model, and the phase roadmap.
 
 ---
 
-## Current phase: 0 — skeleton
+## Current phase: 1 — applications API
 
-- ✅ Backend: ASP.NET Core 10 + MongoDB, JWT wired, `/api/status` health endpoint
-- ✅ Frontend: React 19 + TypeScript + Vite, scai.world design tokens, landing placeholder
-- ✅ Docker Compose (frontend + backend + mongo), GitHub Actions CI
-- ⏭ Phase 1: member model endpoints + application submission + email verification
+- ✅ Phase 0: skeleton — backend, frontend, Docker Compose, CI
+- ✅ `POST /api/applications` — application (§7) with 18+ check, organisation
+  representative, three required consents recorded with document version + timestamp
+- ✅ `POST /api/applications/verify` — double opt-in; unconfirmed applications
+  are deleted automatically after 48 h (TTL index)
+- ✅ `GET /api/config/public` — fees and document versions (from `PlatformConfig`, §12(f))
+- ✅ Email via SMTP when `Smtp__Host` is set; in Development, mail is written to the log
+- ✅ Per-IP rate limits on the public endpoints
+- ⏭ Phase 2: public frontend — landing + application form
 
 ---
 
@@ -36,8 +41,10 @@ dotnet run --project src/ScaiMembers.Api    # → http://localhost:5246
 ```
 Requires .NET 10 SDK and a local MongoDB (`mongodb://localhost:27017`), or:
 ```bash
-docker run -d -p 27017:27017 --name mongo mongo:8
+docker run -d -p 27017:27017 -v scai-mongo-data:/data/db --name mongo --restart unless-stopped mongo:8
 ```
+Without SMTP settings, emails (e.g. the confirmation link) are printed to the
+backend console instead of being sent.
 
 ### Frontend
 ```bash
@@ -81,7 +88,7 @@ docker compose pull && docker compose up -d
 | Phase | Deliverable |
 |---|---|
 | 0 | Repo skeleton, compose runs, CI green ✅ |
-| 1 | Member model + application endpoints + email verification |
+| 1 | Member model + application endpoints + email verification ✅ |
 | 2 | Public frontend: landing + application form (scai.world design) |
 | 3 | Admin: application review + member list → the board can admit members |
 | 4 | Auth + member area (`/me`, documents) |

@@ -1,12 +1,16 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using ScaiMembers.Api.Configuration;
 using ScaiMembers.Api.Services;
+using ScaiMembers.Api.Services.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Bind configuration sections
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(AppSettings.SectionName));
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection(MongoDbSettings.SectionName));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.Configure<CorsSettings>(builder.Configuration.GetSection(CorsSettings.SectionName));
@@ -15,6 +19,28 @@ builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection(SmtpSe
 
 // MongoDB
 builder.Services.AddSingleton<MongoDbContext>();
+
+// Domain services
+builder.Services.AddScoped<ConfigService>();
+builder.Services.AddScoped<ApplicationService>();
+
+// Email: SMTP when configured, otherwise the dev log sender (which refuses outside Development)
+var smtpSettings = builder.Configuration.GetSection(SmtpSettings.SectionName).Get<SmtpSettings>()
+    ?? new SmtpSettings();
+if (smtpSettings.IsConfigured)
+    builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+else
+    builder.Services.AddSingleton<IEmailSender, LogEmailSender>();
+
+// Behind the VPS reverse proxy: take the client IP from X-Forwarded-For for rate limiting.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+builder.Services.AddRateLimiter(RateLimits.Configure);
 
 // JWT Authentication (wired now; login endpoints arrive in Phase 4)
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
@@ -78,10 +104,14 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {
@@ -93,6 +123,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
