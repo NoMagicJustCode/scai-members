@@ -1,0 +1,43 @@
+# scai-members — members.scai.world
+# After the first push to GitHub, replace YOUR_GH_USERNAME with the actual
+# account the repo lives under (CI publishes images as ghcr.io/<owner>/<repo>-*).
+services:
+  frontend:
+    image: ghcr.io/YOUR_GH_USERNAME/scai-members-frontend:latest
+    ports:
+      - "8081:80"            # reverse proxy on the VPS routes members.scai.world → this port
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/YOUR_GH_USERNAME/scai-members-backend:latest
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - MongoDB__ConnectionString=mongodb://mongo:27017
+      - MongoDB__DatabaseName=scai_members
+      - Jwt__Secret=${JWT_SECRET}
+      - Cors__AllowedOrigins__0=https://members.scai.world
+      - Upload__Path=/app/uploads
+      # Phase 1 — transactional email:
+      # - Smtp__Host=${SMTP_HOST}
+      # - Smtp__Port=${SMTP_PORT}
+      # - Smtp__Username=${SMTP_USERNAME}
+      # - Smtp__Password=${SMTP_PASSWORD}
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:8
+    volumes:
+      - mongodata:/data/db
+    restart: unless-stopped
+
+volumes:
+  uploads:
+  mongodata:

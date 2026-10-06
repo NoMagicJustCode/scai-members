@@ -1,0 +1,104 @@
+/* ---------------------------------------------------------------
+   scai.world design tokens — members platform
+   Light, warm, institutional. Steel blue + warm gold accents,
+   Cormorant Garamond for display, Source Sans 3 for body.
+   --------------------------------------------------------------- */
+:root {
+  /* Palette */
+  --paper: #faf7f2;          /* warm page background */
+  --surface: #ffffff;
+  --ink: #2b2b28;            /* near-black warm text */
+  --ink-soft: #5c5a54;
+  --steel: #4a7398;          /* steel blue — primary */
+  --steel-deep: #35587a;
+  --gold: #c9a227;           /* warm gold — accent */
+  --gold-soft: #e8d9a8;
+  --line: #e6e0d4;
+  --danger: #a4452f;
+  --ok: #4a7a52;
+
+  /* Type */
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Source Sans 3", system-ui, -apple-system, sans-serif;
+
+  /* Rhythm */
+  --radius: 6px;
+  --max-width: 980px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+a {
+  color: var(--steel-deep);
+  text-decoration-color: var(--gold);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--steel);
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.rule-gold {
+  width: 64px;
+  height: 2px;
+  background: var(--gold);
+  border: none;
+  margin: 1.25rem 0;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--steel-deep);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px 14px;
+}
+
+.status-ok {
+  color: var(--ok);
+}
+
+.status-bad {
+  color: var(--danger);
+}

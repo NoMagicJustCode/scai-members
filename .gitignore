@@ -1,0 +1,25 @@
+# .NET
+bin/
+obj/
+*.user
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Local archives
+*.tar.gz
+
+# Environment & secrets
+.env
+.env.local
+frontend/.env
+
+# Uploads (local dev)
+backend/src/ScaiMembers.Api/uploads/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
