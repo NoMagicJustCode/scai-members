@@ -27,8 +27,11 @@ public class JwtSettings
     public string Issuer { get; set; } = "ScaiMembers";
     public string Audience { get; set; } = "ScaiMembers";
 
-    /// <summary>Access token lifetime. Short by design; refresh comes in Phase 4.</summary>
-    public int ExpirationMinutes { get; set; } = 60;
+    /// <summary>
+    /// Session length (one working session). Admin rights are re-checked in the
+    /// database on every admin request, so revocation does not wait for expiry.
+    /// </summary>
+    public int ExpirationMinutes { get; set; } = 480;
 }
 
 public class CorsSettings

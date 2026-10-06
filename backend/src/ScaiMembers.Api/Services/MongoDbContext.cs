@@ -52,6 +52,10 @@ public class MongoDbContext
             // Unverified applications expire (GDPR minimisation); verified ones have no expiry date.
             new CreateIndexModel<MembershipApplication>(
                 Builders<MembershipApplication>.IndexKeys.Ascending(a => a.EmailVerificationExpiresAt),
+                new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }),
+            // Decided applications are purged 30 days after the decision (privacy policy).
+            new CreateIndexModel<MembershipApplication>(
+                Builders<MembershipApplication>.IndexKeys.Ascending(a => a.PurgeAt),
                 new CreateIndexOptions { ExpireAfter = TimeSpan.Zero })
         ]);
 

@@ -33,7 +33,10 @@ export async function fetchPublicConfig(): Promise<PublicConfig> {
 }
 
 export type MemberType = 'Person' | 'Organisation'
-export type ApplicableClass = 'Ordinary' | 'Supporting'
+export type MembershipClass = 'Ordinary' | 'Supporting' | 'Honorary'
+export type ApplicableClass = Exclude<MembershipClass, 'Honorary'>
+export type MemberStatus = 'Applied' | 'Active' | 'Resigned' | 'Excluded' | 'Ended'
+export type ApplicationState = 'Pending' | 'Approved' | 'Rejected' | 'Withdrawn'
 
 export interface ApplicationRequest {
   memberType: MemberType
@@ -55,29 +58,38 @@ export interface ApplicationRequest {
 /** Field names as the API reports them (PascalCase), mapped to messages. */
 export type FieldErrors = Record<string, string>
 
-export type ApiResult =
-  | { ok: true; message: string }
+export type ApiResult<T = unknown> =
+  | { ok: true; data: T; message: string }
   | { ok: false; status: number; message: string; fieldErrors: FieldErrors }
 
 interface ProblemDetails {
   title?: string
+  message?: string
   errors?: Record<string, string[]>
 }
 
-async function post(path: string, body: unknown): Promise<ApiResult> {
+/**
+ * All calls send the session cookie (credentials) and the custom header the
+ * API requires on mutating requests as CSRF protection.
+ */
+async function request<T>(method: string, path: string, body?: unknown): Promise<ApiResult<T>> {
   let res: Response
   try {
     res = await fetch(`${API_BASE_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      method,
+      credentials: 'include',
+      headers: {
+        'X-SCAI-Request': '1',
+        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
     return { ok: false, status: 0, message: 'Could not reach the server. Please check your connection and try again.', fieldErrors: {} }
   }
 
-  const data = (await res.json().catch(() => ({}))) as ProblemDetails & { message?: string }
-  if (res.ok) return { ok: true, message: data.message ?? '' }
+  const data = (await res.json().catch(() => ({}))) as ProblemDetails
+  if (res.ok) return { ok: true, data: data as T, message: data.message ?? '' }
 
   const fieldErrors: FieldErrors = {}
   for (const [field, messages] of Object.entries(data.errors ?? {})) {
@@ -89,10 +101,97 @@ async function post(path: string, body: unknown): Promise<ApiResult> {
   const message =
     res.status === 429
       ? 'Too many attempts from your connection. Please wait a few minutes and try again.'
-      : (data.title ?? `Something went wrong (${res.status}). Please try again later.`)
+      : res.status === 401
+        ? (data.title ?? 'Please sign in.')
+        : (data.title ?? `Something went wrong (${res.status}). Please try again later.`)
   return { ok: false, status: res.status, message, fieldErrors }
 }
 
-export const submitApplication = (req: ApplicationRequest) => post('/api/applications', req)
+// --- Public ------------------------------------------------------------
 
-export const verifyEmail = (token: string) => post('/api/applications/verify', { token })
+export const submitApplication = (req: ApplicationRequest) => request('POST', '/api/applications', req)
+
+export const verifyEmail = (token: string) => request('POST', '/api/applications/verify', { token })
+
+// --- Session -----------------------------------------------------------
+
+export interface Session {
+  id: string
+  name: string
+  email: string
+  isAdmin: boolean
+}
+
+export const login = (email: string, password: string) =>
+  request<Session>('POST', '/api/auth/login', { email, password })
+
+export const logout = () => request('POST', '/api/auth/logout')
+
+export const fetchSession = () => request<Session>('GET', '/api/auth/me')
+
+// --- Board -------------------------------------------------------------
+
+export interface AdminApplication {
+  id: string
+  memberType: MemberType
+  name: string
+  representative: string | null
+  dateOfBirth: string | null
+  email: string
+  postalAddress: string | null
+  country: string | null
+  requestedClass: MembershipClass
+  motivation: string | null
+  submittedAt: string
+  state: ApplicationState
+  decidedAt: string | null
+  decidedBy: string | null
+}
+
+export interface DecisionResponse {
+  message: string
+  emailSent: boolean
+}
+
+export interface AdminMember {
+  id: string
+  memberType: MemberType
+  name: string
+  representative: string | null
+  email: string
+  membershipClass: MembershipClass
+  status: MemberStatus
+  joinedAt: string | null
+  isAdmin: boolean
+}
+
+export interface AdminMemberList {
+  members: AdminMember[]
+  activeCount: number
+  oneTenth: number
+}
+
+export interface PlatformSettings {
+  joiningFee: number
+  annualFeeOrdinary: number
+  annualFeeSupporting: number
+  currency: string
+  statutesVersion: string
+  privacyPolicyVersion: string
+  updatedAt: string | null
+}
+
+export const fetchApplications = (pending: boolean) =>
+  request<AdminApplication[]>('GET', `/api/admin/applications?pending=${pending}`)
+
+export const approveApplication = (id: string) =>
+  request<DecisionResponse>('POST', `/api/admin/applications/${id}/approve`)
+
+export const rejectApplication = (id: string) =>
+  request<DecisionResponse>('POST', `/api/admin/applications/${id}/reject`)
+
+export const fetchMembers = () => request<AdminMemberList>('GET', '/api/admin/members')
+
+export const fetchSettings = () => request<PlatformSettings>('GET', '/api/admin/settings')
+
+export const saveSettings = (s: PlatformSettings) => request<PlatformSettings>('PUT', '/api/admin/settings', s)

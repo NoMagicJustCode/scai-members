@@ -36,6 +36,7 @@ export default function Layout() {
           <a href={ORG.website}>scai.world</a>
           <Link to="/impressum">Impressum</Link>
           <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/admin">Board</Link>
         </div>
       </footer>
     </div>

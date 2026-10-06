@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using ScaiMembers.Api.Contracts;
 using ScaiMembers.Api.Models;
 
 namespace ScaiMembers.Api.Services;
@@ -29,5 +30,21 @@ public class ConfigService(MongoDbContext db)
                 ReturnDocument = ReturnDocument.After
             },
             ct);
+    }
+
+    public async Task UpdateAsync(PlatformSettingsDto s, CancellationToken ct = default)
+    {
+        await GetAsync(ct); // ensure the document exists
+        await db.Config.UpdateOneAsync(
+            c => c.Id == "config",
+            Builders<PlatformConfig>.Update
+                .Set(c => c.JoiningFee, s.JoiningFee)
+                .Set(c => c.AnnualFeeOrdinary, s.AnnualFeeOrdinary)
+                .Set(c => c.AnnualFeeSupporting, s.AnnualFeeSupporting)
+                .Set(c => c.Currency, s.Currency)
+                .Set(c => c.StatutesVersion, s.StatutesVersion)
+                .Set(c => c.PrivacyPolicyVersion, s.PrivacyPolicyVersion)
+                .Set(c => c.UpdatedAt, s.UpdatedAt ?? DateTime.UtcNow),
+            cancellationToken: ct);
     }
 }

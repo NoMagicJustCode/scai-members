@@ -82,6 +82,14 @@ public class MembershipApplication
     [BsonElement("memberId")]
     [BsonRepresentation(BsonType.ObjectId)]
     public string? MemberId { get; set; }
+
+    /// <summary>
+    /// TTL-indexed: set to decision + 30 days (privacy policy v1.0). A declined
+    /// applicant's data then disappears; an admitted applicant's data lives on
+    /// in the Member record. Who decided stays in the audit log.
+    /// </summary>
+    [BsonElement("purgeAt")]
+    public DateTime? PurgeAt { get; set; }
 }
 
 public enum ApplicationState { Pending, Approved, Rejected, Withdrawn }

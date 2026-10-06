@@ -17,7 +17,36 @@ statutes-driven data model, and the phase roadmap.
 
 ---
 
-## Current phase: 2 — public frontend
+## Current phase: 3 — board area
+
+- ✅ Board sign-in (`/admin/login`): email + password (Argon2id), session as JWT in
+  an httpOnly cookie, CSRF header check, rate-limited; admin rights re-checked in
+  the database on every request
+- ✅ `/admin` — pending applications (confirmed emails only), admit / decline with
+  inline confirmation, no reason field (§7(2)); applicant notified by email;
+  decision logged in the audit log
+- ✅ Admitting creates the Member record (consents carried over); decided
+  applications are purged after 30 days (TTL), as the privacy policy states
+- ✅ `/admin/members` — member list, active count and one-tenth threshold (§9(3), §11(2))
+- ✅ `/admin/settings` — fees (§12(f)) and document versions
+- ⏭ Phase 4: member sign-in for all members, `/me`, documents, password reset
+
+### First board account
+
+There is no admin yet to admit one through the UI, so the first account is
+created on the server console (it asks for email, name and password):
+
+```bash
+# local
+cd backend && dotnet run --project src/ScaiMembers.Api -- create-admin
+# on the VPS
+docker compose exec -it backend dotnet ScaiMembers.Api.dll create-admin
+```
+
+Run it again with an existing member's email to make them an admin or reset
+their password.
+
+### Phase 2 — public frontend
 
 - ✅ `/` landing (membership classes per §6, joining steps, fees from config —
   shown as "set by the General Assembly" until entered)
@@ -25,7 +54,6 @@ statutes-driven data model, and the phase roadmap.
 - ✅ `/privacy` (v1.0, matches `PlatformConfig.privacyPolicyVersion`) and `/impressum`
 - ✅ Design mirrors the scai-world repo (tokens, nav, page-hero, content sections, footer)
 - ✅ Fonts self-hosted via `@fontsource` — no Google Fonts requests (GDPR)
-- ⏭ Phase 3: admin — application review + member list
 - ⚠ Before going live: switch contacts to office@scai.world once it exists;
   confirm with Chris the log retention (14 days) and EU email provider stated in `/privacy`
 
@@ -100,7 +128,7 @@ docker compose pull && docker compose up -d
 | 0 | Repo skeleton, compose runs, CI green ✅ |
 | 1 | Member model + application endpoints + email verification ✅ |
 | 2 | Public frontend: landing + application form (scai.world design) ✅ |
-| 3 | Admin: application review + member list → the board can admit members |
+| 3 | Admin: application review + member list → the board can admit members ✅ |
 | 4 | Auth + member area (`/me`, documents) |
 | 5 | File module: uploads, slug links, public/password/members |
 | 6 | Payments & reminders log, GDPR export/delete, polish |

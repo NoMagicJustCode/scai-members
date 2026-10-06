@@ -130,8 +130,8 @@ Status: `pending` → `approved` / `rejected` (no reason required — §7(2): bo
 | 0 | Repo skeleton, Docker compose runs, CI green | `docker compose up` shows hello-world |
 | 1 | Backend: member model + application endpoints + email verification | API testable |
 | 2 | Frontend: landing + application form, scai.world design | the public face, ready to show Chris |
-| 3 | Admin: applications review + member list (+ delete declined applications within 30 days — promised in `/privacy`) | board can actually admit members 🎉 |
-| 4 | Auth + member area (`/me`, documents) | members can log in |
+| 3 | Admin: applications review + member list + fee settings, with board-only sign-in (pulled forward from Phase 4; first admin via `create-admin` CLI) | board can actually admit members 🎉 |
+| 4 | Auth for all members + member area (`/me`, documents, password reset) | members can log in |
 | 5 | File module (Chris's request) + `/f/{slug}` proxy route on scai.world | Chris gets his feature |
 | 6 | Payments/reminders log, GDPR export/delete, polish | legally complete |
 

@@ -29,7 +29,7 @@ public class StatusController(MongoDbContext db) : ControllerBase
             service = "scai-members",
             organisation = "Second Circuit – Verein für digitale Gedankenfreiheit",
             zvr = "1684464197",
-            phase = 1,
+            phase = 3,
             mongo = mongoOk ? "ok" : "unreachable",
             timeUtc = DateTime.UtcNow
         });
